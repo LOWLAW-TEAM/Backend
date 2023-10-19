@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link href="{% static 'css/chatbot.css' %}" rel="stylesheet">
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-gothic.css" rel="stylesheet">
+    <title>LOWLAW</title>
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo-container">
+            <a href=""><img class="header-logo" src="{% static 'src/logo-header2.png' %}"></a>
+        </div>
+        <div class="header-menu-container">
+            <a href="" class="header-search">검색엔진</a>
+            <a href="" class="header-chatbot">AI챗봇</a>
+        </div>
+    </header>
+    <main>
+        <h1>AI 챗봇</h1>
+        <div id="message_div" class="message_div">
+            <div style="overflow: auto;" class="message_container" id="message_container">
+                <!-- 이 부분에 대화 메시지를 동적으로 추가할 수 있습니다. -->
+            </div>
+            <div class="message_input_div">
+                <div id="message_input_container" class="message_input_container">
+                    <textarea rows="1" class="message_input" id="message_input" placeholder="질문을 입력해주세요"></textarea>
+                    <img id="message_btn" class="message_btn" src="{% static 'src/btn_chatbot_sending.svg' %}">
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'js/chatbot.js' %}"></script>
+</body>
+<footer class="footer">
+    <p>(C) 2023. LOWLAW. All rights reserved.</p>
+</footer>
+</html>
