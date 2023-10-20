@@ -6,7 +6,8 @@ function signUp(){
     const userName = document.getElementById('input-name').value;
     const userID = document.getElementById('input-id').value;
     const userPW = document.getElementById('input-pw').value;
-    const confirmPW = document.get.ElementById('input-pw-cf').value;
+    const confirmPW = document.getElementById('input-pw-cf').value;
+
 
     token = localStorage.getItem('access_token');
     if(userPW!=confirmPW){
@@ -25,9 +26,9 @@ function signUp(){
     }
     else{
         const formData = new FormData();
-        fetch('/member/register',{
+        fetch('/register/',{
             method:"POST",
-            header:{
+            headers:{
                 'Content-Type': 'application/JSON'
             },
             body: JSON.stringify({
@@ -37,7 +38,7 @@ function signUp(){
             })
         })
         .then(response=>{
-            if(response.statur==200){
+            if(response.status==200){
                 return response.json;
             }
             else if(response.status==400){

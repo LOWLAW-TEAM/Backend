@@ -20,6 +20,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.contrib import messages
 
 from django.http import JsonResponse
 from elasticsearch import Elasticsearch
