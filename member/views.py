@@ -39,6 +39,7 @@ from rest_framework import viewsets
 from .models import LegalQAFinal
 from .serializers import LegalQAFinalSerializer
 
+
 admin.site.register(Token)
 
 # Elasticsearch 클라이언트 설정
