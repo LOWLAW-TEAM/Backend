@@ -3,6 +3,7 @@ from member import views
 from django.contrib import admin
 from allauth.socialaccount.providers.oauth2.urls import default_urlpatterns
 from allauth.socialaccount import views as socialaccount_views
+from .views import MessagesView
 #from .views import LegalQAFinalViewSet, ChatbotView
 
 #mypage
@@ -24,24 +25,30 @@ urlpatterns = [
     # 로그아웃 기능
     path('logout/', views.user_logout, name='logout'),
 
-    # # 소셜 로그인 기능
-    # # path('accounts/kakao/login/callback/', views.social_login, name='social_login'),
-    # path('accounts/', include('allauth.urls')),
-
     # 관리자 페이지
     path('admin/', admin.site.urls),
 
-    #마이페이지
+    path('messages/', views.MessagesView.as_view(), name='messages'),
+
+    path('button_law/', views.button_law, name='button_law'),
+
+    path('button_prec/', views.button_prec, name='button_prec'),
+    
+    #챗봇
+    path('chatbot/', views.chatbot, name='chatbot'),
+
+    # 마이페이지
     path('mypage/', mypage, name='mypage'),
 
-    #회원탈퇴
+    # 회원탈퇴
     path('user-delete/', views.user_delete, name='user_delete'),
-
-    #챗봇
-    path('chatbot/', views.chatbot_page, name='chatbot_page'),
 
     # #구글로그인
     # path('welcome/', views.welcome, name='welcome'),
+
+    # 소셜 로그인 기능
+    # path('accounts/kakao/login/callback/', views.social_login, name='social_login'),
+    # path('accounts/', include('allauth.urls')),
 
 ]
 
