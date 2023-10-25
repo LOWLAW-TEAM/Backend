@@ -1,13 +1,12 @@
-from django.urls import include, path
-from member import views
+from django.urls import include
+from django.urls import path
 from django.contrib import admin
 from allauth.socialaccount.providers.oauth2.urls import default_urlpatterns
 from allauth.socialaccount import views as socialaccount_views
-from member  .views import ChatbotView
-#from member.views import LegalQAFinalViewSet
-
-#mypage
+from member import views
 from member.views import mypage
+from member.views import ChatbotView
+#from member.views import LegalQAFinalViewSet
 
 urlpatterns = [
     # 빈 경로에 대한 URL 패턴 추가
@@ -28,6 +27,7 @@ urlpatterns = [
     # 관리자 페이지
     path('admin/', admin.site.urls),
 
+    # fix need
     path('messages/', views.ChatbotView.as_view(), name='messages'),
 
     path('button_law/', views.button_law, name='button_law'),

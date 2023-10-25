@@ -3,12 +3,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import admin
-from social_django.views import complete
-from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
 
+from django.db import IntegrityError
 from django.urls import reverse
-from .forms import NewProfileChangeForm
-from allauth.socialaccount.helpers import render_authentication_error
+from django.http import JsonResponse
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+from django.views import View
+from django.utils.decorators import method_decorator
 
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import IsAuthenticated
@@ -18,27 +24,21 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.contrib import messages
+from rest_framework import viewsets
 
-from django.http import JsonResponse
+from .forms import NewProfileChangeForm
+from allauth.socialaccount.helpers import render_authentication_error
+
 from elasticsearch import Elasticsearch
 from elastic_app_search import Client
 from sentence_transformers import SentenceTransformer, util
 import re
 import json
 import datetime
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import View
-from django.views import View
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from rest_framework import viewsets
+
+from social_django.views import complete
 from .models import LegalQAFinal
 from .serializers import LegalQAFinalSerializer
-
 
 admin.site.register(Token)
 

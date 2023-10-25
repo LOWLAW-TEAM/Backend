@@ -149,7 +149,7 @@ CORS_ALLOW_ALL_ORIGINS = True # 다른 도메인에서 API 접근 허용
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'  # 또는 'Strict'
 
-APPEND_SLASH = False
+# APPEND_SLASH = False
 
 # CSRF_COOKIE_SECURE = False
 # CSRF_USE_SESSIONS = False
