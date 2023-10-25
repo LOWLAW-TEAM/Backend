@@ -39,6 +39,7 @@ from rest_framework import viewsets
 from .models import LegalQAFinal
 from .serializers import LegalQAFinalSerializer
 
+
 admin.site.register(Token)
 
 # Elasticsearch 클라이언트 설정
@@ -138,8 +139,92 @@ def cached_model():
 
 model = cached_model()
 
-def chatbot_page(request):
+def chatbot(request):
     return render(request, 'chatbot.html')
+
+class MessagesView(View):
+    #def get(self, request):
+        #return HttpResponse("GET request received")
+    
+    def post(self, request):
+            user_input = request.POST.get('user_input')
+            embeddings = model.encode([user_input])[0] if user_input else None
+
+            if embeddings:
+                # Elasticsearch에서 embedding 필드 값 검색
+                query = {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "_source": ["question", "answer", "law", "prec", "embedding"]
+                }
+
+                response = es.search(index="legal_qa_final", body=query, size=3000)
+
+                # Initialize chat history
+                if "messages" not in request.session:
+                    request.session["messages"] = []
+
+                if user_input:  # 사용자가 user_input를 입력하였다면
+                    # 가장 높은 코사인 유사도 값 초기화
+                    max_cosine_similarity = -1
+                    best_answer = ""
+                    related_law = None
+                    related_prec = None
+                    
+                    # 사용자의 user_input을 chat history에 append
+                    request.session["messages"].append({"role": "user", "content": user_input})
+
+                    # 각 문서와의 코사인 유사도 비교
+                    for hit in response["hits"]["hits"]:
+                        doc_embedding = hit["_source"]["embedding"]
+                        # Elasticsearch에서 가져온 'embedding' 값을 문자열에서 리스트로 변환
+                        doc_embedding = [float(value) for value in doc_embedding.strip("[]").split(", ")]
+                        cosine_similarity = util.pytorch_cos_sim(embeddings, [doc_embedding]).item()
+
+                        if cosine_similarity > max_cosine_similarity:
+                            max_cosine_similarity = cosine_similarity
+                            best_answer = hit["_source"]["answer"]
+                            related_law = hit["_source"].get("law", None)  # 필드에 데이터가 존재하면 law 값을 가져오고 존재하지 않으면 None 반환
+                            related_prec = hit["_source"].get("prec", None)  # 필드에 데이터가 존재하면 prec 값을 가져오고 존재하지 않으면 None 반환
+
+                    if max_cosine_similarity > 0.7:  # max_cosine_similarity 값이 0.7 이상이면 해당 답변 출력
+                        # 최적의 답변을 반환하는 로직
+                        best_answer = re.sub(r'\((.*?)\)', lambda x: x.group(0).replace('.', ' '), best_answer)
+                        best_answer = best_answer.replace('.', '.  \n\n')
+
+                        if related_law:
+                            related_law_list = related_law.split(",")
+                            for law in related_law_list:
+                                request.session["messages"].append({"role": "📖", "content": law})
+
+                        if related_prec:
+                            related_prec_list = related_prec.split(",")
+                            for prec in related_prec_list:
+                                request.session["messages"].append({"role": "⚖️", "content": prec})
+
+                    else:  # 챗봇의 답변 오류 메세지
+                        request.session["messages"].append({"role": "assistant", "content": "질문에 대한 답변을 찾을 수 없어요. 상황에 대해서 정확히 입력해주세요!"})
+
+                response_data = {
+                    "status": "200",  # 상태를 나타내는 status 값을 추가
+                    "messages": request.session.get("messages", [])
+                }
+
+                return JsonResponse(response_data)
+            else:
+                return JsonResponse({"error": "Only POST requests are allowed"}, status=405)
+
+def button_law(request):
+    law = request.POST.get('law')  # 'law'를 요청에서 추출
+    result2 = law_search(law)
+    return JsonResponse({"role": "📖", "content": result2})
+
+def button_prec(request) :
+    prec = request.POST.get('prec')  # 'prec'를 요청에서 추출
+    result2 = prec_search(prec)
+    return JsonResponse({"role": "⚖️", "content": result2})
+
 
 def law_search(data): # App Search에서 참조법령 찾기
     # 검색 옵션 설정 (score 점수 내림차순 정렬, 상위 1개 결과)
@@ -250,87 +335,3 @@ def prec_search(data): # App Search 에서 참조판례 찾기
                         result_string += "-" * 40 + "\n"
 
     return result_string
-
-def button_law(request):
-    law = request.POST.get('law')  # 'law'를 요청에서 추출
-    result2 = law_search(law)
-    return JsonResponse({"role": "📖", "content": result2})
-
-def button_prec(request) :
-    prec = request.POST.get('prec')  # 'prec'를 요청에서 추출
-    result2 = prec_search(prec)
-    return JsonResponse({"role": "⚖️", "content": result2})
-
-@method_decorator(login_required, name='dispatch')
-class ChatbotView(View):
-    def get(self, request):
-        # GET 요청에 대한 처리 (예: 초기 페이지 렌더링)
-        return render(request, 'chatbot.html')
-    
-    def post(self, request):
-        user_input = request.POST.get('user_input')
-        embeddings = model.encode([user_input])[0] if user_input else None
-
-        if embeddings:
-            # Elasticsearch에서 embedding 필드 값 검색
-            query = {
-                "query": {
-                    "match_all": {}
-                },
-                "_source": ["question", "answer", "law", "prec", "embedding"]
-            }
-
-            response = es.search(index="legal_qa_final", body=query, size=3000)
-
-            # Initialize chat history
-            if "messages" not in request.session:
-                request.session["messages"] = []
-
-            if user_input:  # 사용자가 user_input를 입력하였다면
-                # 가장 높은 코사인 유사도 값 초기화
-                max_cosine_similarity = -1
-                best_answer = ""
-                related_law = None
-                related_prec = None
-                
-                # 사용자의 user_input을 chat history에 append
-                request.session["messages"].append({"role": "user", "content": user_input})
-
-                # 각 문서와의 코사인 유사도 비교
-                for hit in response["hits"]["hits"]:
-                    doc_embedding = hit["_source"]["embedding"]
-                    # Elasticsearch에서 가져온 'embedding' 값을 문자열에서 리스트로 변환
-                    doc_embedding = [float(value) for value in doc_embedding.strip("[]").split(", ")]
-                    cosine_similarity = util.pytorch_cos_sim(embeddings, [doc_embedding]).item()
-
-                    if cosine_similarity > max_cosine_similarity:
-                        max_cosine_similarity = cosine_similarity
-                        best_answer = hit["_source"]["answer"]
-                        related_law = hit["_source"].get("law", None)  # 필드에 데이터가 존재하면 law 값을 가져오고 존재하지 않으면 None 반환
-                        related_prec = hit["_source"].get("prec", None)  # 필드에 데이터가 존재하면 prec 값을 가져오고 존재하지 않으면 None 반환
-
-                if max_cosine_similarity > 0.7:  # max_cosine_similarity 값이 0.7 이상이면 해당 답변 출력
-                    # 최적의 답변을 반환하는 로직
-                    best_answer = re.sub(r'\((.*?)\)', lambda x: x.group(0).replace('.', ' '), best_answer)
-                    best_answer = best_answer.replace('.', '.  \n\n')
-
-                    if related_law:
-                        related_law_list = related_law.split(",")
-                        for law in related_law_list:
-                            request.session["messages"].append(law, on_click=lambda:button_law)
-
-                    if related_prec:
-                        related_prec_list = related_prec.split(",")
-                        for prec in related_prec_list:
-                            request.session["messages"].append(prec, on_click=lambda:button_prec)
-
-                else:  # 챗봇의 답변 오류 메세지
-                    request.session["messages"].append({"role": "assistant", "content": "질문에 대한 답변을 찾을 수 없어요. 상황에 대해서 정확히 입력해주세요!"})
-
-            # 나머지 챗봇 기능을 여기에 추가
-
-            return JsonResponse({"messages": request.session["messages"]})
-
-class LegalQAFinalViewSet(viewsets.ModelViewSet):
-    queryset = LegalQAFinal.objects.all()
-    serializer_class = LegalQAFinalSerializer
