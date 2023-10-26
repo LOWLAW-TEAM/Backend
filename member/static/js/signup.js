@@ -8,7 +8,7 @@ function signUp(){
     const userPW = document.getElementById('input-pw').value;
     const confirmPW = document.getElementById('input-pw-cf').value;
 
-    const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+    const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value; // 수정
 
     token = localStorage.getItem('access_token');
 
@@ -18,7 +18,7 @@ function signUp(){
         alert("사용할 이메일을 입력해주세요.")
     }
     else if(checkBlank(userName)!=true){
-        alert("사용할 닉네임을 입력해주세요.")
+        alert("사용할 이름을 입력해주세요.")
     }
     else if(checkBlank(userPW)!=true){
         alert("사용할 비밀번호를 입력해주세요.")
@@ -28,11 +28,11 @@ function signUp(){
     }
     else{
         const formData = new FormData();
-        fetch('/register/',{
+        fetch('/register/',{ // member/register/ -> /regiseter/ 수정
             method:"POST",
             headers:{
                 'Content-Type': 'application/JSON',
-                'X-CSRFToken': csrfToken
+                'X-CSRFToken': csrfToken // 수정
             },
             body: JSON.stringify({
                 username: userName,
@@ -44,7 +44,7 @@ function signUp(){
     if (response.status === 201) {
         return response.json();
     } else if (response.status === 403) {
-        // Handle CSRF token length error
+        // Handle CSRF token length error 수정
         alert("CSRF 토큰의 길이가 잘못되었습니다.");
     } else if (response.status === 401) {
         alert("잘못된 아이디 혹은 비밀번호를 입력하셨습니다.");
@@ -62,7 +62,6 @@ function signUp(){
         alert("로그인 성공!");
         window.location.href = '../html/login.html';
     } else {
-        // Handle the case where data is undefined or the message doesn't match.
         console.error('로그인 실패 또는 잘못된 응답');
     }
 });
