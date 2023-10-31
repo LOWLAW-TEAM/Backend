@@ -5,8 +5,8 @@ from allauth.socialaccount.providers.oauth2.urls import default_urlpatterns
 from allauth.socialaccount import views as socialaccount_views
 from member import views
 from member.views import mypage
-from member.views import ChatbotView
-#from member.views import LegalQAFinalViewSet
+# from member.views import ChatbotView
+# from member.views import LegalQAFinalViewSet
 
 urlpatterns = [
     # 빈 경로에 대한 URL 패턴 추가
@@ -28,7 +28,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # fix need
-    path('messages/', views.ChatbotView.as_view(), name='messages'),
+    path('messages', views.messsages, name='messages'),
 
     path('button_law/', views.button_law, name='button_law'),
 

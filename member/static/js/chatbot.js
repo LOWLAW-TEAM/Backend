@@ -41,7 +41,7 @@ function getCSRFToken() {
 }
 
 function submit(message) {
-    fetch('/messages', { // 수정
+    fetch('/messages/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ function submit(message) {
         },
         body: JSON.stringify({
             user_input: message
-        })
+        }),
     })
         .then(response => {
             if (response.status == 200) {
