@@ -5,6 +5,8 @@ from allauth.socialaccount.providers.oauth2.urls import default_urlpatterns
 from allauth.socialaccount import views as socialaccount_views
 from member import views
 from member.views import mypage
+from member.views import CustomAuthToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 # from member.views import ChatbotView
 # from member.views import LegalQAFinalViewSet
 
@@ -20,6 +22,9 @@ urlpatterns = [
 
     # 로그인 기능
     path('login/', views.user_login, name='login'),
+    path('login/', CustomAuthToken.as_view(), name='custom_auth_token'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # 로그아웃 기능
     path('logout/', views.user_logout, name='logout'),

@@ -5,19 +5,19 @@ function login() {
     if (userID === '' || userPW === '') {
         alert("아이디와 비밀번호를 모두 입력해주세요.");
     } else {
-        // CSRF 토큰을 직접 가져오기 
+        // CSRF 토큰을 직접 가져오기
         const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
         fetch('/login/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
+                'X-CSRFToken': csrfToken,
             },
             body: JSON.stringify({
                 email: userID,
-                password: userPW
-            })
+                password: userPW,
+            }),
         })
         .then(response => {
             if (response.status === 200) {
