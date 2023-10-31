@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.kakao',
+    # 'config',
 ]
 
 SITE_ID = 1
@@ -147,6 +148,11 @@ CORS_ALLOW_ALL_ORIGINS = True # 다른 도메인에서 API 접근 허용
 
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'  # 또는 'Strict'
+
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000"]
+
+
+APPEND_SLASH = False
 
 # CSRF_COOKIE_SECURE = False
 # CSRF_USE_SESSIONS = False

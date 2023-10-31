@@ -41,7 +41,7 @@ function getCSRFToken() {
 }
 
 function submit(message) {
-    fetch('/messages', {
+    fetch('/messages', { // 수정
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
