@@ -55,9 +55,6 @@ client = Client(
     use_https=True
 )
 
-def home(request):
-    return render(request, 'home.html')
-
 def register(request):
     if request.method == 'POST':
         username = request.POST['username']
