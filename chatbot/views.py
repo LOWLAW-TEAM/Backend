@@ -36,26 +36,17 @@ def home(request):
     return render(request, 'main.html')
 
 def chatbot(request):
-    return render(request, 'chatbot.html')
+    if request.method == 'GET':
+        return render(request, 'chatbot.html')
 
 def messsages(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         user_input = data.get('user_input', "")
         
-        response_data = {
-                "status": "200",  # 상태를 나타내는 status 값을 추가
-                "messages": request.session.get("messages", [])
-            }
-
-        return JsonResponse(response_data)
-        
-    elif request.method == 'GET':
-        user_input = request.GET.get('user_input', "")
-        
         embeddings = model.encode([user_input])[0] if user_input else None
 
-        if embeddings:
+        if len(embeddings) > 0:
             # Elasticsearch에서 embedding 필드 값 검색
             query = {
                 "query": {
@@ -110,16 +101,16 @@ def messsages(request):
 
                 else:  # 챗봇의 답변 오류 메세지
                     request.session["messages"].append({"role": "assistant", "content": "질문에 대한 답변을 찾을 수 없어요. 상황에 대해서 정확히 입력해주세요!"})
+                    
+                response_data = {
+                "status": "200",  # 상태를 나타내는 status 값을 추가
+                "messages": request.session.get("messages", [])
+                }
 
-        response_data = {
-            "status": "200",  # 상태를 나타내는 status 값을 추가
-            "messages": request.session.get("messages", [])
-        }
-
-        return JsonResponse(response_data)
+                return JsonResponse(response_data)
         
-    else:
-        return HttpResponse(status=405)
+        else:
+            return HttpResponse(status=405)
 
 def button_law(request):
     law = request.POST.get('law')  # 'law'를 요청에서 추출
