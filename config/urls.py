@@ -33,7 +33,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # fix need
-    path('messages', views.messsages, name='messages'),
+    path('messages/', views.messsages, name='messages'),
 
     path('button_law/', views.button_law, name='button_law'),
 
